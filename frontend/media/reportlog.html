@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Terrorist Reports</title>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #d1d5db;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #f87171;
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: rgba(16, 94, 61, 0.1);
+      border: 1px solid #14532d;
+      box-shadow: 0 0 10px #14532d80;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #14532d;
+    }
+
+    th {
+      background-color: #111827;
+      color: #22c55e;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    tr:hover {
+      background-color: rgba(34, 197, 94, 0.1);
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: bold;
+    }
+
+    .active {
+      background-color: #ef4444;
+      color: #fff;
+    }
+
+    .captured {
+      background-color: #10b981;
+      color: #fff;
+    }
+
+    .unknown {
+      background-color: #facc15;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📋 Terrorist Activity Report</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Location</th>
+        <th>Threat Level</th>
+        <th>Status</th>
+        <th>Last Seen</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Rashid Qureshi</td>
+        <td>Kandahar</td>
+        <td>High</td>
+        <td><span class="badge active">Active</span></td>
+        <td>2025-07-28</td>
+      </tr>
+      <tr>
+        <td>Imran Baluchi</td>
+        <td>Syria Border</td>
+        <td>Medium</td>
+        <td><span class="badge captured">Captured</span></td>
+        <td>2025-07-14</td>
+      </tr>
+      <tr>
+        <td>Unknown Operative</td>
+        <td>Berlin</td>
+        <td>Low</td>
+        <td><span class="badge unknown">Unknown</span></td>
+        <td>2025-06-30</td>
+      </tr>
+      <tr>
+        <td>Khalid Rahmani</td>
+        <td>Baghdad</td>
+        <td>Critical</td>
+        <td><span class="badge active">Active</span></td>
+        <td>2025-07-29</td>
+      </tr>
+    </tbody>
+  </table>
+
+</body>
+</html>

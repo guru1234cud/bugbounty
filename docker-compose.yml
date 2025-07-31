@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy  # ✅ Waits for MySQL healthcheck
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: 1234
+      DB_NAME: myapp
+    networks:
+      - app-net
+
+  mysql:
+    image: mysql:8
+    restart: always
+    ports:
+      - "3308:3306" # ✅ maps container 3306 to host 3308 (good)
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: myapp
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-net
+    healthcheck:                # ✅ Add this block!
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  mysql-data:
+
+networks:
+  app-net:

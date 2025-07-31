@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSec Arsenal - Professional Security Tools</title>
+  <style>
+    :root {
+      --primary-green: #00ff41;
+      --dark-green: #003300;
+      --accent-orange: #ff6b35;
+      --military-blue: #1e3a8a;
+      --bg-dark: #0a0a0a;
+      --bg-secondary: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0b0;
+      --text-muted: #808080;
+      --glass-bg: rgba(0, 255, 65, 0.08);
+      --glass-border: rgba(0, 255, 65, 0.2);
+      --matrix-green: #00ff41;
+      --warning-red: #dc2626;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #000000;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Matrix Background */
+    .matrix-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: radial-gradient(ellipse at center, rgba(0, 255, 65, 0.1) 0%, transparent 70%),
+                  linear-gradient(180deg, #0a0a0a 0%, #0d1117 50%, #0a0a0a 100%);
+    }
+
+    .matrix-bg::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(circle at 25% 25%, rgba(0, 255, 65, 0.1) 0%, transparent 2%),
+                        radial-gradient(circle at 75% 75%, rgba(30, 58, 138, 0.05) 0%, transparent 2%);
+      background-size: 70px 70px;
+      animation: matrixMove 25s linear infinite;
+    }
+
+    @keyframes matrixMove {
+      0% { background-position: 0 0; }
+      100% { background-position: 70px 70px; }
+    }
+
+    /* Header */
+    .header {
+      background: rgba(17, 17, 17, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 20px 40px;
+      border-bottom: 2px solid #dc2626;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #03eb39;
+      text-shadow: 2px 2px 4px rgba(220, 38, 38, 0.7);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: glitch 3s infinite;
+      padding: 10px;
+      font-style: italic;
+    }
+
+    .shield-icon {
+      width: 48px;
+      height: 48px;
+      margin-right: 16px;
+      color: #00ff41;
+    }
+
+ 
+
+    .status-indicator {
+      color: #00ff41;
+      font-size: 0.9rem;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 60px 20px;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: bold;
+      color: #00ff41;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 20px;
+      animation: glitch 3s infinite;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: #b0b0b0;
+      max-width: 600px;
+      margin: 0 auto 30px;
+    }
+
+    .hero .warning {
+      color: #ff6b35;
+      font-weight: bold;
+      font-size: 1.1rem;
+      animation: blink 2s infinite;
+    }
+
+    /* Products Section */
+    .products-section {
+      padding: 40px 0px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.0rem;
+      font-weight: bold;
+      color: #00ff41;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto, minmax(700px, 3fr));
+      gap: 60px;
+      margin-bottom: 100px;
+    }
+
+    .product-card {
+      background: rgba(26, 26, 26, 0.8);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(0, 255, 65, 0.3);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      position: relative;
+      
+    }
+
+    .product-card:hover {
+      transform: translateY(-8px);
+      border-color: #00ff41;
+      box-shadow: 0 15px 40px rgba(0, 255, 65, 0.2);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+    }
+
+    .product-info {
+      padding: 24px;
+    }
+
+    .product-category {
+      background: rgba(0, 255, 65, 0.1);
+      color: #00ff41;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .product-name {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .product-rating {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .stars {
+      display: flex;
+      color: #fbbf24;
+    }
+
+    .rating-text {
+      color: #b0b0b0;
+      font-size: 0.9rem;
+    }
+
+    .product-description {
+      color: #b0b0b0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .product-price {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #ff6b35;
+    }
+
+    .add-to-cart {
+      background: #dc2626;
+      color: #ffffff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .add-to-cart:hover {
+      background: #b91c1c;
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+    }
+
+    /* Features Section */
+    .features-section {
+      background: rgba(26, 26, 26, 0.5);
+      padding: 30px 20px;
+      margin-top: 20px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      text-align: center;
+      padding: 30px 20px;
+      border: 1px solid rgba(0, 255, 65, 0.3);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: #00ff41;
+      transform: translateY(-4px);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      color: #00ff41;
+      margin: 0 auto 16px;
+    }
+
+    
+
+    .feature-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #00ff41;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .feature-description {
+      color: #b0b0b0;
+      font-size: 0.9rem;
+    }
+
+    /* Footer */
+    .footer {
+      background: rgba(0, 0, 0, 0.9);
+      border-top: 2px solid #dc2626;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .footer-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .footer-title {
+      color: #00ff41;
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .acquire{
+      background-color: red;
+      color: white;
+      font-weight: bold;
+      padding: 10px;
+      height: fit-content;
+      width:fit-content;
+      border: none;
+      border-radius: 10px;
+      margin-left: 290px;
+      margin-top: 10px;
+    }
+
+    .footer-text {
+      color: #b0b0b0;
+      margin-bottom: 16px;
+    }
+
+    .footer-warning {
+      color: #ff6b35;
+      font-size: 0.9rem;
+      animation: blink 2s infinite;
+    }
+
+     body {
+      background-color: #0a0a0a;
+      font-family: Arial, sans-serif;
+      color: #00ff41;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #fcfcfc;
+      margin-bottom: 30px;
+    }
+
+    .product-container {
+     
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-bottom: 0px;
+  margin-right: 200px;
+     }
+    
+
+    .product-card {
+      background-color: #111;
+      border: 1px solid #00ff41;
+      border-radius: 10px;
+      width: 400px;
+      height: 440px;
+      padding: 15px;
+      box-shadow: 0 0 10px #00ff41;
+      transition: transform 0.3s;
+    }
+
+    .product-card:hover {
+      transform: scale(1.05);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 180px;
+  
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .product-card h3 {
+      margin: 0;
+      color: #ffffff;
+    }
+
+    .price {
+      color: #ff6b35;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .category, .rating {
+      font-size: 1.0em;
+      margin-top: 5px;
+    }
+
+    .description {
+      margin-top: 10px;
+      font-size: 1.0em;
+      color: #ccc;
+    }
+
+    /* Animations */
+    @keyframes glitch {
+      0%, 15%, 49%, 100% {
+        text-shadow: 0.05em 0 0 #ff0000, -0.03em -0.04em 0 #00ff00, 0.025em 0.04em 0 #0000ff;
+      }
+      16%, 50% {
+        text-shadow: -0.05em -0.025em 0 #ff0000, 0.025em 0.035em 0 #00ff00, -0.05em -0.05em 0 #0000ff;
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .header {
+        padding: 16px 20px;
+      }
+
+      .header-content {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .section-title {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .products-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero {
+        padding: 40px 20px;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .products-section {
+        padding: 40px 20px;
+      }
+
+      .product-info {
+        padding: 16px;
+      }
+
+      .product-name {
+        font-size: 1.1rem;
+      }
+
+      .product-price {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="matrix-bg"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <svg class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        ISIS Arsenal
+      </div>
+      
+      <div class="cart-container">
+     
+        <button class="cart-btn" id="cartBtn">
+         
+            
+          </svg>
+          
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+
+
+  <!-- Products Section -->
+  <section class="products-section">
+    <h2 class="section-title">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="4,17 10,11 4,5"/>
+        <line x1="12" y1="19" x2="20" y2="19"/>
+      </svg>
+      Available Arsenal
+    </h2>
+    
+    <div class="products-grid" id="productsGrid">
+    
+  <div class="product-container">
+
+    <div class="product-card">
+      <img src="../img/granade.jpg" alt="CyberShield Pro Scanner">
+      <h3>Tactical Grenade</h3>
+      <p class="price">₹299.99</p>
+      <p class="category">Category:Bomb</p>
+      <p class="rating">Rating: ⭐ 4.8</p>
+      <p class="description">Advanced vulnerability scanner with AI-powered threat detection and real-time monitoring capabilities.Advanced vulnerability scanner with AI</p>
+      <button class="acquire" onclick="window.location.href='granade.html'">Acquire</button>
+    </div>
+
+    <div class="product-card">
+      <img src="../img/gun1.avif" alt="SecureNet Firewall X1">
+      <h3>Rifit Rifle</h3>
+      <p class="price">₹599.99</p>
+      <p class="category">Category: Rifle</p>
+      <p class="rating">Rating: ⭐ 4.9</p>
+      <p class="description">Enterprise-grade firewall with deep packet inspection and advanced intrusion prevention.Advanced vulnerability scanner with AI</p>
+      <button class="acquire" onclick="window.location.href='gun.html'">Acquire</button>
+    </div>
+
+    <div class="product-card">
+      <img src="../img/landmine.webp" alt="CryptLock Hardware Key">
+      <h3>Landmine</h3>
+      <p class="price">₹149.99</p>
+      <p class="category">Category: Ground Attack</p>
+      <p class="rating">Rating: ⭐ 4.7</p>
+      <p class="description">Military-grade encryption hardware authentication device with biometric security features.Advanced vulnerability scanner with AI</p>
+      <button class="acquire" onclick="window.location.href='landmine.html'">Acquire</button>
+    </div>
+
+    <div class="product-card">
+      <img src="../img/jacket1.jpg" alt="ThreatHunter Terminal">
+      <h3>Bullet Proof </h3>
+      <p class="price">₹899.99</p>
+      <p class="category">Category: Protuction</p>
+      <p class="rating">Rating: ⭐ 4.6</p>
+      <p class="description">Professional penetration testing and analysis platform with automated reporting00.Advanced vulnerability scanner with AI</p>
+      <button class="acquire" onclick="window.location.href='jacket.html'">Acquire</button>
+    </div>
+
+    <div class="product-card">
+      <img src="../img/timebomb.jpg" alt="SecureComm Radio">
+      <h3>Timebomb</h3>
+      <p class="price">₹399.99</p>
+      <p class="category">Category: Bomb</p>
+      <p class="rating">Rating: ⭐ 4.8</p>
+      <p class="description">Encrypted communication device for secure operations with quantum-resistant protocols.Advanced vulnerability scanner with AI</p>
+      <button class="acquire" onclick="window.location.href='timebomb.html'">Acquire</button>
+    </div>
+
+    <div class="product-card">
+      <img src="../img/minigun.webp" alt="SecureComm Radio (MiniGun Edition)">
+      <h3>MiniGun Edition</h3>
+      <p class="price">₹399.99</p>
+      <p class="category">Category: Guns</p>
+      <p class="rating">Rating: ⭐ 4.8</p>
+      <p class="description">Encrypted communication device for secure operations with quantum-resistant protocols.Advanced vulnerability scanner with AI</p>
+      <button class="acquire" onclick="window.location.href='minigun.html'">Acquire</button>
+      
+
+    </div>
+
+  </div>
+
+
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="features-grid">
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <circle cx="12" cy="16" r="1"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <div class="feature-title">Secure Transactions</div>
+        <div class="feature-description">Military-grade encryption for all purchases</div>
+      </div>
+      
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+          <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+          <line x1="12" y1="20" x2="12.01" y2="20"/>
+        </svg>
+        <div class="feature-title">Anonymous Delivery</div>
+        <div class="feature-description">Discrete shipping to secure locations</div>
+      </div>
+      
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <div class="feature-title">24/7 Monitoring</div>
+        <div class="feature-description">Continuous security surveillance</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-title">[ CYBERSEC ARSENAL - AUTHORIZED DEALERS ONLY ]</div>
+      <div class="footer-text">
+        This is a fictional cybersecurity tools marketplace for educational purposes only.
+      </div>
+      <div class="footer-warning">
+        CONNECTION SECURE • LOCATION MASKED • IDENTITY PROTECTED
+      </div>
+    </div>
+  </footer>
+  <script src="../js/timer.js"></script>
+
+
+  <script>
+   
+
+    // Matrix rain effect
+    function createMatrixRain() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.style.position = 'fixed';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.zIndex = '-1';
+      canvas.style.opacity = '0.15';
+      canvas.style.pointerEvents = 'none';
+      document.body.appendChild(canvas);
+
+      const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      };
+
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()";
+      const matrixArray = matrix.split("");
+      const fontSize = 12;
+      const columns = Math.floor(canvas.width / fontSize);
+      const drops = new Array(columns).fill(1);
+
+      const draw = () => {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#00ff41';
+        ctx.font = `${fontSize}px monospace`;
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      };
+
+      setInterval(draw, 100);
+    }
+
+    // Floating matrix characters
+    function createFloatingChars() {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*";
+      
+      for (let i = 0; i < 30; i++) {
+        const char = document.createElement('div');
+        char.textContent = chars[Math.floor(Math.random() * chars.length)];
+        char.style.cssText = `
+          position: fixed;
+          color: rgba(0, 255, 65, 0.3);
+          font-family: monospace;
+          font-size: 14px;
+          pointer-events: none;
+          z-index: -1;
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * 100}%;
+          animation: float ${5 + Math.random() * 10}s linear infinite;
+        `;
+        
+        document.body.appendChild(char);
+      }
+      
+      // Add floating animation
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes float {
+          0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // Initialize everything
+    window.addEventListener('load', () => {
+      renderProducts();
+      updateCartCount();
+      createMatrixRain();
+      createFloatingChars();
+      
+      // Add some dynamic effects
+      setInterval(() => {
+        const chars = document.querySelectorAll('div[style*="float"]');
+        if (chars.length < 30) {
+          createFloatingChars();
+        }
+      }, 2000);
+    });
+
+    // Add some interactive terminal-style effects
+    document.addEventListener('mousemove', (e) => {
+      if (Math.random() > 0.98) {
+        const ripple = document.createElement('div');
+        ripple.style.cssText = `
+          position: fixed;
+          left: ${e.clientX}px;
+          top: ${e.clientY}px;
+          width: 4px;
+          height: 4px;
+          background: rgba(0, 255, 65, 0.6);
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 1;
+          animation: ripple 1s ease-out forwards;
+        `;
+        
+        document.body.appendChild(ripple);
+        
+        setTimeout(() => {
+          document.body.removeChild(ripple);
+        }, 1000);
+      }
+    });
+
+    // Add ripple animation
+    const rippleStyle = document.createElement('style');
+    rippleStyle.textContent = `
+      @keyframes ripple {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(20); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(rippleStyle);
+  </script>
+</body>
+</html> 

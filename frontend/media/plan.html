@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JWT Auth Demo</title>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #d1d5db;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 20px;
+    }
+
+    h2 {
+      color: #86efac;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form, .actions {
+      background-color: rgba(16, 94, 61, 0.1);
+      border: 1px solid #14532d;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #14532d80;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input {
+      background-color: #000;
+      border: 1px solid #14532d;
+      color: #d1d5db;
+      padding: 5px;
+      width: 100%;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+
+    button {
+      background-color: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #15803d;
+    }
+
+    p {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    hr {
+      border: 1px solid #14532d;
+      margin: 30px auto;
+      max-width: 400px;
+    }
+
+    .actions {
+      text-align: center;
+    }
+
+    #protected-response {
+      background-color: #000;
+      border: 1px solid #14532d;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+      color: #22c55e;
+    }
+
+    #login-status {
+      color: #facc15;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🔐Locked </h2>
+
+  <form id="login-form">
+    <label>Username:
+      <input type="text" id="username" />
+    </label>
+    <label>Password:
+      <input type="password" id="password" />
+    </label>
+    <button type="submit">Login</button>
+  </form>
+
+  <p id="login-status"></p>
+
+  <hr>
+
+
+
+  <script>
+    window.onload = () => {
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+    };
+
+    let token = null;
+
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const response = await fetch("http://localhost:3000/api/auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        const text = await response.text();
+        console.log("Raw response:", text);
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (err) {
+          document.getElementById("login-status").textContent = "Invalid server response.";
+          return;
+        }
+
+        if (response.ok) {
+          token = data.token;
+          document.getElementById("login-status").textContent = "✅ Login successful!";
+          window.location.href = "./planlog.html";
+        } else {
+          document.getElementById("login-status").textContent = "❌ Login failed: " + data.message;
+        }
+      } catch (err) {
+        console.error("Network error:", err);
+        document.getElementById("login-status").textContent = "⚠️ Network error.";
+      }
+    });
+
+    document.getElementById("get-protected").addEventListener("click", async () => {
+      if (!token) {
+        document.getElementById("protected-response").textContent = "Please log in first.";
+        return;
+      }
+
+      const response = await fetch("http://localhost:3000/protected", {
+        method: "GET",
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      });
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (err) {
+        document.getElementById("protected-response").textContent = "Invalid server response.";
+        return;
+      }
+
+      if (response.ok) {
+        document.getElementById("protected-response").textContent = data.message;
+      } else {
+        document.getElementById("protected-response").textContent = "Access denied: " + data.message;
+      }
+    });
+  </script>
+</body>
+</html>

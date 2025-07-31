@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cybersecurity Operations Center Dashboard with Maps</title>
+    <style>
+        :root {
+            --primary-green: #00ff41;
+            --dark-green: #003300;
+            --accent-orange: #ff6b35;
+            --military-blue: #1e3a8a;
+            --bg-dark: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #808080;
+            --glass-bg: rgba(0, 255, 65, 0.08);
+            --glass-border: rgba(0, 255, 65, 0.2);
+            --matrix-green: #00ff41;
+            --warning-red: #dc2626;
+        }
+
+        body {
+            background-color: #0c0c0c;
+            color: #e74c3c;
+            font-family: "Courier New", monospace;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+             
+        }
+
+        .timer-container {
+            position: fixed;
+            top: 80px;
+            right: 30px;
+            font-size: 40px;
+            font-style: italic;
+            text-shadow: 2px 2px 4px rgba(228, 18, 18, 0.7);
+            color: #00ff41;
+            font-weight: bold;
+            z-index: 9999;
+            margin-top: 15px;
+        }
+
+        .menu-btn {
+            position: fixed;
+            top: 45px;
+            left: 50px;
+            background: #01af2d;
+            border: 2px red solid;
+            color: white;
+            box-shadow: 3px 3px 3px 0px red;
+            font-size: 24px;
+            padding: 10px 24px;
+            border-radius: 6px;
+            z-index: 1001;
+            animation: glitch 1s infinite;
+        }
+
+        .side_nav {
+            position: fixed;
+            top: 0;
+            left: -350px;
+            width: 350px;
+            height: 100%;
+            background-color: #1a1a1a;
+            box-shadow: 2px 0 8px rgba(14, 14, 14, 0.4);
+            z-index: 1000;
+            transition: left 0.3s ease;
+            padding-top: 100px;
+        }
+
+        .side_nav.open {
+            left: 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 40px;
+            right: 20px;
+            background: #02cc02;
+            box-shadow: 2px 3px 5px rgba(255, 0, 0, 0.6);
+            border: 2px red solid;
+            font-size: 20px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            
+            color: white;
+        }
+
+        .side_nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+            margin-top: 100px;
+        }
+
+
+
+        .side_nav ul li a {
+            color: rgb(0, 10, 2);
+            text-decoration: none;
+            background-color: #04c704;
+            padding: 15px 25px;
+            width: 200px;
+            /* ✅ Fixed width for all buttons */
+            text-align: center;
+            border-radius: 6px;
+            font-weight: bold;
+            box-shadow: 2px 3px 5px rgba(255, 0, 0, 0.6);
+            transition: 0.3s ease;
+            font-size: 1.1rem;
+             
+            display: inline-block;
+            /* ✅ Ensure width works correctly */
+            margin-bottom: 0px;
+        }
+
+        .side_nav ul li a:hover {
+            background-color: #18f904;
+            transform: scale(1.05);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #111;
+            padding: 10px 20px;
+            color: white;
+            border-bottom: 3px solid red;
+        }
+
+        .navbar h1 {
+            display: flex;
+            margin-left: 700px;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--primary-green);
+            text-shadow: 2px 2px 4px rgba(228, 18, 18, 0.7);
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-style: italic;
+        }
+
+        .icon {
+            height: 80px;
+            width: auto;
+            margin-right: 20px;
+        }
+
+        .container {
+            color: #ed0404;
+            margin: 20px auto;
+            padding: 1px;
+            max-width: 100%;
+            text-align: left;
+            display: flex;
+            justify-content: center;
+            text-shadow: 2px 2px 4px rgba(241, 5, 5, 0.7);
+        }
+
+        .container h1 {
+            font-size: 35px;
+            text-transform: uppercase;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--primary-green);
+            text-shadow: 2px 2px 4px rgba(228, 18, 18, 0.7);
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-style: italic;
+        }
+
+        .division {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            padding: 3rem;
+            background: black;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-green);
+            border: 1px solid rgba(0, 255, 64, 0.719);
+            transition: all 0.3s ease;
+            position: relative;
+            font-weight: 500;
+            width: fit-content;
+            margin-left: 450px;
+            box-shadow: rgba(0, 255, 64, 0.503) 3px 4px 5px 0px;
+        }
+
+        .division:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 12px 40px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(2, 241, 62, 0.89);
+            border-color: var(--primary-green);
+        }
+
+        .division ul li {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, rgba(0, 255, 65, 0.05), rgba(30, 58, 138, 0.03));
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-green);
+            border: 1px solid rgba(2, 120, 32, 0.929);
+            transition: all 0.3s ease;
+            position: relative;
+            font-weight: bold;
+            color: #00ff41;
+        }
+
+        .glitch {
+            animation: glitch 1s infinite;
+        }
+
+        @keyframes glitch {
+            0% {
+                text-shadow: 0.05em 0 0 #ff0000, -0.03em -0.04em 0 #00ff00, 0.025em 0.04em 0 #0000ff;
+            }
+
+            15% {
+                text-shadow: 0.05em 0 0 #ff0000, -0.03em -0.04em 0 #00ff00, 0.025em 0.04em 0 #0000ff;
+            }
+
+            16% {
+                text-shadow: -0.05em -0.025em 0 #ff0000, 0.025em 0.035em 0 #00ff00, -0.05em -0.05em 0 #0000ff;
+            }
+
+            49% {
+                text-shadow: -0.05em -0.025em 0 #ff0000, 0.025em 0.035em 0 #00ff00, -0.05em -0.05em 0 #0000ff;
+            }
+
+            50% {
+                text-shadow: 0.05em 0.035em 0 #ff0000, 0.03em 0 0 #00ff00, 0 -0.04em 0 #0000ff;
+            }
+
+            99% {
+                text-shadow: 0.05em 0.035em 0 #ff0000, 0.03em 0 0 #00ff00, 0 -0.04em 0 #0000ff;
+            }
+
+            100% {
+                text-shadow: -0.05em 0 0 #ff0000, -0.025em -0.04em 0 #00ff00, -0.04em -0.025em 0 #0000ff;
+            }
+        }
+
+        .terminal,
+        .intel-feed,
+        .mission-upload,
+        .agent-grid,
+        .maps-container {
+            width: 80%;
+            margin: 40px auto;
+        }
+
+        .maps-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 10px auto;
+
+        }
+
+        .map-section {
+            background: #1a1a1a;
+            border: 2px solid #00ff41;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            height: 400px;
+        }
+
+        .map-section h3 {
+            color: #00ff41;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .map-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            background: linear-gradient(45deg, #003300, #001a00);
+            border: 1px solid #00ff41;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+
+        }
+
+        .map-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(255, 0, 0, 0.8) 2px, transparent 2px),
+                radial-gradient(circle at 60% 70%, rgba(255, 107, 53, 0.8) 2px, transparent 2px),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 65, 0.8) 2px, transparent 2px),
+                radial-gradient(circle at 40% 80%, rgba(255, 255, 0, 0.8) 2px, transparent 2px),
+                radial-gradient(circle at 75% 50%, rgba(255, 0, 255, 0.8) 2px, transparent 2px);
+            background-size: 100% 100%;
+        }
+
+        .map-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.1) 50%, transparent 100%),
+                linear-gradient(0deg, transparent 0%, rgba(0, 255, 65, 0.1) 50%, transparent 100%);
+            background-size: 50px 50px;
+            animation: mapScan 3s ease-in-out infinite;
+
+        }
+
+        @keyframes mapScan {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .map-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 45px;
+
+        }
+
+        .stat-item {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            color: #00ff41;
+            font-size: 0.9rem;
+
+        }
+
+        .terminal {
+            background-color: #000;
+            color: #00ff00;
+            font-family: monospace;
+            padding: 20px;
+            border: 2px solid #00ff41;
+            height: 300px;
+            overflow-y: scroll;
+        }
+
+        #terminal-input {
+            width: 100%;
+            background: #111;
+            color: #0f0;
+            border: none;
+            padding: 10px;
+        }
+
+        .intel-feed {
+            background: #1a1a1a;
+            color: #f33;
+            font-family: monospace;
+            border: 1px dashed #05f72e;
+            padding: 20px;
+        }
+
+        .mission-upload {
+            background: rgb(1, 87, 1);
+            padding: 20px;
+            border: 2px solid #04f718;
+            color: white;
+        }
+
+        .mission-upload input,
+        .mission-upload textarea {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            background: #000;
+            color: red;
+            border: 1px solid #00ff41;
+        }
+
+        .mission-upload button {
+            background: red;
+            color: white;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 7px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .agent-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .agent-card {
+            background: #111;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid red;
+            box-shadow: 0 0 10px #00ff41;
+            width: 200px;
+            text-align: center;
+            margin-top: 70px;
+        }
+
+        .agent-card.online {
+            background-color: #003300;
+        }
+
+        .agent-card.offline {
+            background-color: #330000;
+        }
+
+        .agent-card.mission {
+            background-color: #331100;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(ellipse at center, rgba(9, 73, 25, 0.459) 0%, transparent 70%),
+                linear-gradient(180deg, var(--bg-dark) 0%, #0d1117 50%, var(--bg-dark) 100%);
+        }
+
+        .matrix-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 25% 25%, rgba(4, 112, 31, 0.797) 0%, transparent 2%),
+                radial-gradient(circle at 75% 75%, rgba(30, 58, 138, 0.05) 0%, transparent 2%);
+            background-size: 70px 70px;
+            animation: matrixMove 25s linear infinite;
+        }
+
+        .map-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .map-image::before,
+.map-image::after {
+  display: none;
+}
+
+
+
+        @keyframes matrixMove {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 70px 70px;
+            }
+        }
+
+        /* ===== RESPONSIVE MEDIA QUERIES ===== */
+
+        /* Large Laptops and Desktops (1600px+) */
+        @media screen and (min-width: 1600px) {
+            .navbar h1 {
+                font-size: 48px;
+                margin-left: 700px;
+            }
+
+            .container h1 {
+                font-size: 48px;
+            }
+
+            .timer-container {
+                font-size: 48px;
+                top: 50px;
+                right: 40px;
+            }
+
+            .menu-btn {
+                font-size: 28px;
+                padding: 12px 28px;
+                top: 40px;
+                left: 60px;
+            }
+
+            .division {
+                margin-left: 400px;
+                padding: 4rem;
+            }
+
+            .terminal,
+            .intel-feed,
+            .mission-upload,
+            .agent-grid,
+            .maps-container {
+                width: 70%;
+                margin: 50px auto;
+            }
+
+            .agent-card {
+                width: 250px;
+                padding: 25px;
+            }
+
+            .map-image {
+                height: 350px;
+            }
+
+             .map-section{
+                height: 550px;
+            }
+        }
+
+        /* Standard Laptops (1366px - 1599px) */
+        @media screen and (max-width: 1599px) and (min-width: 1366px) {
+            .navbar h1 {
+                font-size: 36px;
+                margin-left: 565px;
+            }
+
+            .container h1 {
+                font-size: 36px;
+            }
+
+            .timer-container {
+                font-size: 36px;
+                top: 15px;
+                right: 45px;
+            }
+
+            .menu-btn {
+                font-size: 22px;
+                padding: 8px 20px;
+                top: 50px;
+                left: 40px;
+            }
+
+            .division {
+                margin-left: 370px;
+                padding: 3.5rem;
+                max-width: 800px;
+            }
+
+            .terminal,
+            .intel-feed,
+            .mission-upload,
+            .agent-grid,
+            .maps-container {
+                width: 85%;
+            }
+
+            .agent-grid {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .agent-card {
+                width: 180px;
+                padding: 18px;
+            }
+
+            .map-image {
+                height: 280px;
+            }
+
+           
+        }
+
+        /* Small Laptops (1024px - 1365px) */
+        @media screen and (max-width: 1365px) and (min-width: 1024px) {
+            .navbar {
+                padding: 8px 15px;
+            }
+
+            .navbar h1 {
+                font-size: 32px;
+                margin-left: 300px;
+                letter-spacing: 1px;
+            }
+
+            .container h1 {
+                font-size: 32px;
+            }
+
+            .timer-container {
+                font-size: 32px;
+                top: 65px;
+                right: 20px;
+            }
+
+            .menu-btn {
+                font-size: 20px;
+                padding: 8px 16px;
+                top: 55px;
+                left: 30px;
+            }
+
+            .icon {
+                height: 60px;
+            }
+
+            .division {
+                margin-left: 150px;
+                padding: 2rem;
+                max-width: 700px;
+            }
+
+            .division ul li {
+                font-size: 1rem;
+                padding: 0.8rem 1.2rem;
+            }
+
+            .terminal,
+            .intel-feed,
+            .mission-upload,
+            .agent-grid,
+            .maps-container {
+                width: 90%;
+                margin: 30px auto;
+            }
+
+            .terminal {
+                height: 250px;
+                padding: 15px;
+            }
+
+            .agent-grid {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .agent-card {
+                width: 160px;
+                padding: 15px;
+                font-size: 0.9rem;
+            }
+
+            .side_nav {
+                width: 300px;
+                left: -300px;
+            }
+
+            .side_nav ul {
+                gap: 30px;
+                margin-top: 80px;
+            }
+
+            .side_nav ul li a {
+                font-size: 1rem;
+                padding: 12px 20px;
+            }
+
+            .map-image {
+                height: 250px;
+            }
+        }
+
+        /* Very Small Laptops and Large Tablets (768px - 1023px) */
+        @media screen and (max-width: 1023px) and (min-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .navbar h1 {
+                font-size: 28px;
+                margin-left: 0;
+                text-align: center;
+            }
+
+            .container h1 {
+                font-size: 28px;
+                text-align: center;
+            }
+
+            .timer-container {
+                position: static;
+                font-size: 28px;
+                text-align: center;
+                margin: 10px 0;
+            }
+
+            .menu-btn {
+                font-size: 18px;
+                padding: 6px 12px;
+                top: 15px;
+                left: 15px;
+            }
+
+            .icon {
+                height: 50px;
+            }
+
+            .container {
+                margin: 15px auto;
+                padding: 20px;
+            }
+
+            .division {
+                margin-left: 50px;
+                margin-right: 50px;
+                padding: 1.5rem;
+                max-width: none;
+                width: auto;
+            }
+
+            .division ul li {
+                font-size: 0.9rem;
+                padding: 0.7rem 1rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .terminal,
+            .intel-feed,
+            .mission-upload,
+            .agent-grid,
+            .maps-container {
+                width: 95%;
+                margin: 25px auto;
+            }
+
+            .maps-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .terminal {
+                height: 200px;
+                padding: 12px;
+            }
+
+            .agent-grid {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .agent-card {
+                width: 280px;
+                padding: 18px;
+            }
+
+            .side_nav {
+                width: 280px;
+                left: -280px;
+            }
+
+            .side_nav ul {
+                gap: 25px;
+                margin-top: 60px;
+            }
+
+            .side_nav ul li a {
+                font-size: 0.95rem;
+                padding: 10px 15px;
+            }
+
+            .intel-feed,
+            .mission-upload {
+                padding: 15px;
+            }
+
+            .mission-upload input,
+            .mission-upload textarea {
+                font-size: 14px;
+            }
+
+            .map-image {
+                height: 220px;
+            }
+        }
+
+        /* Mobile Devices (up to 767px) */
+        @media screen and (max-width: 767px) {
+            .navbar {
+                flex-direction: column;
+                padding: 8px;
+                gap: 8px;
+            }
+
+            .navbar h1 {
+                font-size: 24px;
+                margin-left: 0;
+                text-align: center;
+                letter-spacing: 1px;
+            }
+
+            .container h1 {
+                font-size: 24px;
+                text-align: center;
+            }
+
+            .timer-container {
+                position: static;
+                font-size: 24px;
+                text-align: center;
+                margin: 8px 0;
+            }
+
+            .menu-btn {
+                font-size: 16px;
+                padding: 6px 10px;
+                top: 10px;
+                left: 10px;
+            }
+
+            .icon {
+                height: 40px;
+            }
+
+            .container {
+                margin: 10px auto;
+                padding: 15px;
+            }
+
+            .division {
+                margin-left: 20px;
+                margin-right: 20px;
+                padding: 1rem;
+                max-width: none;
+                width: auto;
+            }
+
+            .division ul li {
+                font-size: 0.8rem;
+                padding: 0.6rem 0.8rem;
+                margin-bottom: 0.6rem;
+            }
+
+            .terminal,
+            .intel-feed,
+            .mission-upload,
+            .agent-grid,
+            .maps-container {
+                width: 98%;
+                margin: 20px auto;
+            }
+
+            .maps-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .terminal {
+                height: 180px;
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            #terminal-input {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .agent-grid {
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .agent-card {
+                width: 260px;
+                padding: 15px;
+                font-size: 0.85rem;
+            }
+
+            .side_nav {
+                width: 250px;
+                left: -250px;
+                padding-top: 80px;
+            }
+
+            .side_nav ul {
+                gap: 20px;
+                margin-top: 40px;
+            }
+
+            .side_nav ul li a {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+
+            .intel-feed,
+            .mission-upload {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .intel-feed h3,
+            .mission-upload h3 {
+                font-size: 18px;
+            }
+
+            .mission-upload input,
+            .mission-upload textarea {
+                font-size: 13px;
+                padding: 8px;
+            }
+
+            .mission-upload button {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .map-image {
+                height: 200px;
+            }
+
+            .map-stats {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+        }
+
+        /* High-DPI Laptops (Retina displays) */
+        @media screen and (min-width: 1024px) and (-webkit-min-device-pixel-ratio: 2) {
+
+            .timer-container,
+            .navbar h1,
+            .container h1 {
+                text-shadow: 3px 3px 6px rgba(228, 18, 18, 0.8);
+            }
+
+            .agent-card {
+                box-shadow: 0 0 15px #00ff41;
+            }
+
+            .division:hover {
+                box-shadow:
+                    0 15px 50px rgba(0, 0, 0, 0.6),
+                    inset 0 1px 0 rgba(2, 241, 62, 0.95);
+            }
+        }
+
+        /* Landscape Orientation for Small Laptops */
+        @media screen and (max-height: 800px) and (min-width: 1024px) {
+            .terminal {
+                height: 200px;
+            }
+
+            .division {
+                padding: 1.5rem;
+            }
+
+            .container {
+                margin: 15px auto;
+                padding: 20px;
+            }
+
+            .timer-container {
+                top: 40px;
+            }
+
+            .menu-btn {
+                top: 35px;
+            }
+
+            .map-image {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="matrix-bg"></div>
+    <button class="menu-btn" onclick="openSidebar()">☰</button>
+
+    <nav class="navbar">
+        <h1 class="glitch">
+            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+            </svg>
+            <span id="glitch-text">CyberOps Network</span>
+        </h1>
+
+        <div class="timer-container">
+            
+        </div>
+    </nav>
+
+    <div class="side_nav" id="sidebar">
+        <button class="close-btn" onclick="closeSidebar()">✖</button>
+        <ul>
+            <li><a href="../infiltration/redirect.html" onclick="navigateSection('operations')">Infiltration Panel</a></li>
+            <li><a href="../media/files.html" onclick="navigateSection('agents')">Media Archive</a></li>
+            <li><a href="../product/products.html" onclick="navigateSection('intel')">Products</a></li>
+           
+
+        </ul>
+    </div>
+
+    <div class="container">
+        <h1 class="glitch">STRIKE ZONE!!</h1>
+    </div>
+
+
+
+    <div class="maps-container">
+        <div class="map-section">
+            <h3>Global Threat Map</h3>
+            <div class="map-image" id="global-map">
+                <img src="../img/stgno.jpg" class="map-img" alt="Global Map">
+            </div>
+            <div class="map-stats">
+                <div class="stat-item">Active Threats: <span id="global-threats">23</span></div>
+                <div class="stat-item">Blocked Attacks: <span id="blocked-attacks">1,247</span></div>
+                <div class="stat-item">Secure Zones: <span id="secure-zones">8</span></div>
+                <div class="stat-item">Alert Level: <span id="alert-level">Medium</span></div>
+            </div>
+        </div>
+
+        <div class="map-section">
+            <h3>Network Infrastructure Map</h3>
+            <div class="map-image" id="network-map">
+                <img src="../img/pass.jpg" class="map-img" alt="Network Map">
+            </div>
+            <div class="map-stats">
+                <div class="stat-item">Active Nodes: <span id="active-nodes">156</span></div>
+                <div class="stat-item">Network Load: <span id="network-load">73%</span></div>
+                <div class="stat-item">Uptime: <span id="uptime">99.8%</span></div>
+                <div class="stat-item">Bandwidth: <span id="bandwidth">2.4 Gbps</span></div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="agent-grid">
+        <div class="agent-card online" data-name="Agent Alpha">Agent Alpha - Online</div>
+        <div class="agent-card mission" data-name="Agent Bravo">Agent Bravo - On Mission</div>
+        <div class="agent-card online" data-name="Agent Charlie">Agent Charlie - Online</div>
+    </div>
+<script src="../js/timer.js"></script>
+    <script>
+        // Mission upload handler
+        
+
+        // Sidebar functionality
+        function openSidebar() {
+            document.getElementById("sidebar").classList.add("open");
+        }
+
+        function closeSidebar() {
+            document.getElementById("sidebar").classList.remove("open");
+        }
+
+        function navigateSection(section) {
+            console.log(`Navigating to ${section} section`);
+            closeSidebar();
+        }
+
+        // Terminal functionality
+        const terminalLog = document.getElementById("terminal-log");
+        const terminalInput = document.getElementById("terminal-input");
+
+        function runCommand(e) {
+            if (e.key === "Enter") {
+                const command = terminalInput.value.trim();
+                if (command !== "") {
+                    terminalLog.innerHTML += `<p>> ${command}</p>`;
+                    fakeResponse(command);
+                    terminalInput.value = "";
+                    terminalLog.scrollTop = terminalLog.scrollHeight;
+                }
+            }
+        }
+
+        function fakeResponse(command) {
+            const responses = {
+                "scan": "Network scan complete. All systems secure.",
+                "connect": "Establishing secure tunnel...",
+                "status": "All security systems operational.",
+                "help": "Available commands: scan, connect, status, monitor, clear",
+                "monitor": "Threat monitoring active. No anomalies detected.",
+                "clear": "Terminal cleared."
+            };
+
+            if (command.toLowerCase() === "clear") {
+                terminalLog.innerHTML = "";
+                return;
+            }
+
+            const response = responses[command.toLowerCase()] || "Command not recognized. Type 'help' for available commands.";
+            terminalLog.innerHTML += `<p style="color:#0f0">${response}</p>`;
+        }
+
+        // Intel feed functionality
+        const fakeIntel = [
+            "Network scan complete. All systems secure.",
+            "Firewall rules updated: 192.168.1.1",
+            "VPN tunnel established. Connection secure...",
+            "Encrypted packet analyzed from endpoint.",
+            "Monitoring threat intelligence feeds...",
+            "Security patrol drone active.",
+            "Analyzing system logs for anomalies...",
+            "Alert: Unusual traffic pattern detected and blocked."
+        ];
+
+        let intelIndex = 0;
+        function updateIntelFeed() {
+            const intelList = document.getElementById("intel-list");
+            const li = document.createElement("li");
+            li.textContent = fakeIntel[intelIndex % fakeIntel.length];
+            intelList.appendChild(li);
+            intelIndex++;
+            if (intelList.children.length > 10) {
+                intelList.removeChild(intelList.children[0]);
+            }
+        }
+        setInterval(updateIntelFeed, 3000);
+
+        // Agent status updates
+        function updateAgentStatus() {
+            const agents = document.querySelectorAll(".agent-card");
+            const statuses = ['online', 'mission', 'offline'];
+            const statusTexts = ['Online', 'On Mission', 'Offline'];
+
+            agents.forEach(agent => {
+                const rand = Math.floor(Math.random() * 3);
+                const status = statuses[rand];
+                const statusText = statusTexts[rand];
+                const name = agent.dataset.name;
+
+                agent.className = `agent-card ${status}`;
+                agent.textContent = `${name} - ${statusText}`;
+            });
+        }
+        setInterval(updateAgentStatus, 5000);
+
+        // Map stats updates
+        function updateMapStats() {
+            document.getElementById("global-threats").textContent = Math.floor(Math.random() * 50) + 10;
+            document.getElementById("blocked-attacks").textContent = Math.floor(Math.random() * 2000) + 1000;
+            document.getElementById("active-nodes").textContent = Math.floor(Math.random() * 50) + 150;
+            document.getElementById("network-load").textContent = Math.floor(Math.random() * 30) + 60 + "%";
+        }
+        setInterval(updateMapStats, 4000);
+
+        // Glitch title effect
+        function glitchTitle() {
+            const glitchEl = document.getElementById("glitch-text");
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+            const originalText = "CyberOps Network";
+            let iteration = 0;
+
+            const interval = setInterval(() => {
+                const glitchText = originalText.split("")
+                    .map((char, index) => {
+                        if (index < iteration) return originalText[index];
+                        return letters[Math.floor(Math.random() * letters.length)];
+                    }).join("");
+
+                glitchEl.textContent = glitchText;
+
+                if (iteration >= originalText.length) {
+                    clearInterval(interval);
+                    glitchEl.textContent = originalText;
+                }
+
+                iteration += 1 / 2;
+            }, 50);
+        }
+
+        setInterval(glitchTitle, 5000);
+        glitchTitle();
+
+        // Matrix rain effect
+        function createMatrixRain() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.style.position = 'fixed';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.zIndex = '-1';
+            canvas.style.opacity = '0.3';
+            document.body.appendChild(canvas);
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&()&^%+-/~{[|`]}";
+            const matrixArray = matrix.split("");
+
+            const fontSize = 10;
+            const columns = canvas.width / fontSize;
+
+            const drops = [];
+            for (let x = 0; x < columns; x++) {
+                drops[x] = 1;
+            }
+
+            function draw() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.07)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#00ff41';
+                ctx.font = fontSize + 'px JetBrains Mono';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+
+            setInterval(draw, 95);
+        }
+
+        // Initialize matrix effect on page load
+        window.addEventListener('load', createMatrixRain);
+
+        // Handle window resize for matrix effect
+        window.addEventListener('resize', () => {
+            const canvas = document.querySelector('canvas');
+            if (canvas) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+        });
+
+        // Close sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.menu-btn');
+
+            if (!sidebar.contains(e.target) && !menuBtn.contains(e.target) && sidebar.classList.contains('open')) {
+                closeSidebar();
+            }
+        });
+    </script>
+</body>
+
+</html>

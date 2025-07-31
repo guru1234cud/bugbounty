@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TERRITORY-09 – Bug Bounty Ops</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-green: #00ff40;
+      --dark-green: #00cc33;
+      --accent-orange: #ff6b35;
+      --military-blue: #1e3a8a;
+      --bg-dark: #0a0a0a;
+      --bg-secondary: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0b0;
+      --text-muted: #808080;
+      --glass-bg: rgba(0, 255, 65, 0.08);
+      --glass-border: rgba(0, 255, 65, 0.2);
+      --matrix-green: #00ff41;
+      --warning-red: #dc2626;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Matrix background effect */
+    .matrix-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background:
+        radial-gradient(ellipse at center, rgba(9, 73, 25, 0.459) 0%, transparent 70%),
+        linear-gradient(180deg, var(--bg-dark) 0%, #0d1117 50%, var(--bg-dark) 100%);
+    }
+
+    .matrix-bg::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        radial-gradient(circle at 25% 25%, rgba(15, 107, 38, 0.726) 0%, transparent 2%),
+        radial-gradient(circle at 75% 75%, rgba(30, 58, 138, 0.05) 0%, transparent 2%);
+      background-size: 70px 70px;
+      animation: matrixMove 25s linear infinite;
+    }
+
+    @keyframes matrixMove {
+      0% {
+        transform: translate(0, 0);
+      }
+
+      100% {
+        transform: translate(50px, 50px);
+      }
+    }
+
+    .overlay {
+      position: relative;
+      z-index: 0;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 2rem;
+      background: linear-gradient(135deg, rgba(0, 255, 65, 0.1), rgba(30, 58, 138, 0.1));
+      border: 2px solid var(--primary-green);
+      border-radius: 12px;
+      position: relative;
+    }
+
+    header::before {
+      content: "CLASSIFIED";
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 0.8rem;
+      color: var(--warning-red);
+      font-weight: bold;
+      letter-spacing: 2px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    header::after {
+      content: "SECURITY LEVEL: ALPHA";
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      font-size: 0.8rem;
+      color: var(--primary-green);
+      font-weight: bold;
+      letter-spacing: 1px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    header h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--primary-green);
+      text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .glass-box {
+      background: linear-gradient(135deg, var(--glass-bg), rgba(30, 58, 138, 0.05));
+      backdrop-filter: blur(20px);
+      border: 2px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(0, 255, 65, 0.2);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .glass-box::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-green), var(--military-blue), var(--primary-green));
+      border-radius: 8px 8px 0 0;
+    }
+
+    .glass-box:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(0, 255, 65, 0.3);
+      border-color: var(--primary-green);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .red-serpents-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--warning-red);
+      text-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
+      margin-bottom: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--primary-green);
+      margin-bottom: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    h2::before {
+      content: "▶";
+      position: absolute;
+      left: 0;
+      color: var(--accent-orange);
+      font-size: 1.2rem;
+    }
+
+    .narrative-text {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      text-align: justify;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .narrative-text strong {
+      color: var(--primary-green);
+      font-weight: 600;
+    }
+
+    .narrative-text code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(0, 255, 65, 0.15);
+      color: var(--primary-green);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.95em;
+      border: 1px solid rgba(0, 255, 65, 0.3);
+    }
+
+    .mission-critical {
+      font-size: 1.3rem;
+      color: var(--accent-orange);
+      text-align: center;
+      font-weight: 700;
+      margin: 2rem 0;
+      padding: 1rem;
+      border: 2px solid var(--accent-orange);
+      border-radius: 8px;
+      background: rgba(255, 107, 53, 0.1);
+      text-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+    }
+
+    .mission-critical::before {
+      content: "⚠ MISSION CRITICAL ⚠";
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-dark);
+      padding: 0 1rem;
+      font-size: 0.8rem;
+      color: var(--warning-red);
+    }
+
+    .warning-text {
+      font-size: 1.1rem;
+      color: var(--warning-red);
+      text-align: center;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      text-shadow: 0 0 10px rgba(220, 38, 38, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .rules-list,
+    .scope-list,
+    .submission-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .rules-list li,
+    .scope-list li,
+    .submission-list li {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, rgba(0, 255, 65, 0.05), rgba(30, 58, 138, 0.03));
+      border-radius: 8px;
+      border-left: 4px solid var(--primary-green);
+      border: 1px solid rgba(0, 255, 65, 0.2);
+      transition: all 0.3s ease;
+      position: relative;
+      font-weight: 500;
+    }
+
+    .rules-list li {
+      border-left-color: var(--warning-red);
+      border-color: rgba(220, 38, 38, 0.2);
+    }
+
+    .rules-list li::before,
+    .submission-list li::before {
+      
+      color: var(--warning-red);
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+
+    .scope-list li::before {
+     
+      margin-right: 0.5rem;
+    }
+
+    .submission-list li::before {
+      
+      color: var(--primary-green);
+    }
+
+    .rules-list li:hover,
+    .scope-list li:hover,
+    .submission-list li:hover {
+      background: rgba(0, 255, 65, 0.08);
+      transform: translateX(5px);
+      border-color: var(--primary-green);
+    }
+
+    .domain-link {
+      color: var(--primary-green);
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 5px rgba(0, 255, 65, 0.3);
+    }
+
+    .domain-link:hover {
+      color: #ffffff;
+      text-shadow: 0 0 15px rgba(0, 255, 65, 0.6);
+      text-decoration: underline;
+    }
+
+    .report-btn {
+      text-align: center;
+      margin: 3rem 0;
+    }
+
+    .submit-button {
+      display: inline-block;
+      background: #01fc40;
+      color: var(--bg-dark);
+      text-decoration: none;
+      padding: 1.2rem 3rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      box-shadow:
+        0 4px 20px rgba(0, 255, 65, 0.3),
+        inset 0 1px 0 rgba(30, 249, 5, 0.2);
+      border: 2px solid rgb(1, 92, 1);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .submit-button:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 8px 30px rgba(2, 140, 37, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, #00ff41, #00cc33);
+      color: var(--bg-dark);
+    }
+
+    .submit-button:active {
+      transform: translateY(0);
+    }
+
+    /* Terminal-style elements */
+    .terminal-line {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary-green);
+      margin: 0.5rem 0;
+    }
+
+    .terminal-line::before {
+      content: "> ";
+      color: var(--accent-orange);
+    }
+
+    /* Status indicators */
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      animation: pulse 2s infinite;
+    }
+
+    .status-online {
+      background: var(--primary-green);
+    }
+
+    .status-warning {
+      background: var(--accent-orange);
+    }
+
+    .status-critical {
+      background: var(--warning-red);
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    /* ========== LAPTOP RESPONSIVE DESIGN ========== */
+
+    /* Extra Large Laptops & Desktops (1920px and above) */
+    @media (min-width: 1920px) {
+      .overlay {
+        max-width: 1800px;
+        padding: 3rem;
+      }
+
+      header h1 {
+        font-size: 48px;
+        letter-spacing: 3px;
+      }
+
+      .red-serpents-title {
+        font-size: 3rem;
+      }
+
+      h2 {
+        font-size: 2rem;
+      }
+
+      .narrative-text {
+        font-size: 1.2rem;
+        line-height: 1.9;
+        max-width: 85%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .glass-box {
+        padding: 3rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .mission-critical {
+        font-size: 1.5rem;
+        padding: 1.5rem;
+        max-width: 70%;
+        margin: 2.5rem auto;
+      }
+
+      .submit-button {
+        padding: 1.5rem 4rem;
+        font-size: 1.2rem;
+      }
+
+      .rules-list li,
+      .scope-list li,
+      .submission-list li {
+        font-size: 1.2rem;
+        padding: 1.2rem 2rem;
+        margin-bottom: 1.2rem;
+      }
+
+      header::before,
+      header::after {
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Large Laptops (1440px - 1919px) */
+    @media (min-width: 1440px) and (max-width: 1919px) {
+      .overlay {
+        max-width: 1400px;
+        padding: 2.5rem;
+      }
+
+      header h1 {
+        font-size: 44px;
+        letter-spacing: 2.5px;
+      }
+
+      .red-serpents-title {
+        font-size: 2.8rem;
+      }
+
+      h2 {
+        font-size: 1.9rem;
+      }
+
+      .narrative-text {
+        font-size: 1.15rem;
+        line-height: 1.85;
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .glass-box {
+        padding: 2.8rem;
+      }
+
+      .mission-critical {
+        font-size: 1.4rem;
+        padding: 1.3rem;
+        max-width: 75%;
+        margin: 2.3rem auto;
+      }
+
+      .submit-button {
+        padding: 1.3rem 3.5rem;
+        font-size: 1.15rem;
+      }
+
+      .rules-list li,
+      .scope-list li,
+      .submission-list li {
+        font-size: 1.15rem;
+        padding: 1.1rem 1.8rem;
+      }
+    }
+
+    /* Medium Laptops (1366px - 1439px) */
+    @media (min-width: 1366px) and (max-width: 1439px) {
+      .overlay {
+        max-width: 1300px;
+        padding: 2.2rem;
+      }
+
+      header h1 {
+        font-size: 42px;
+        letter-spacing: 2px;
+      }
+
+      .red-serpents-title {
+        font-size: 2.6rem;
+      }
+
+      h2 {
+        font-size: 1.85rem;
+      }
+
+      .narrative-text {
+        font-size: 1.12rem;
+        line-height: 1.8;
+      }
+
+      .glass-box {
+        padding: 2.6rem;
+      }
+
+      .mission-critical {
+        font-size: 1.35rem;
+        padding: 1.2rem;
+        max-width: 80%;
+        margin: 2.2rem auto;
+      }
+
+      .submit-button {
+        padding: 1.25rem 3.2rem;
+        font-size: 1.12rem;
+      }
+
+      .rules-list li,
+      .scope-list li,
+      .submission-list li {
+        font-size: 1.12rem;
+        padding: 1.05rem 1.6rem;
+      }
+    }
+
+    /* Small Laptops (1024px - 1365px) */
+    @media (min-width: 1024px) and (max-width: 1365px) {
+      .overlay {
+        max-width: 1200px;
+        padding: 2rem;
+      }
+
+      header {
+        padding: 1.8rem;
+        margin-bottom: 2.5rem;
+      }
+
+      header h1 {
+        font-size: 38px;
+        letter-spacing: 1.5px;
+      }
+
+      .red-serpents-title {
+        font-size: 2.3rem;
+      }
+
+      h2 {
+        font-size: 1.7rem;
+        padding-left: 1.8rem;
+      }
+
+      .narrative-text {
+        font-size: 1.08rem;
+        line-height: 1.75;
+      }
+
+      .glass-box {
+        padding: 2.2rem;
+        margin-bottom: 1.8rem;
+      }
+
+      .mission-critical {
+        font-size: 1.25rem;
+        padding: 1.1rem;
+        margin: 2rem auto;
+      }
+
+      .submit-button {
+        padding: 1.2rem 2.8rem;
+        font-size: 1.08rem;
+      }
+
+      .rules-list li,
+      .scope-list li,
+      .submission-list li {
+        font-size: 1.08rem;
+        padding: 1rem 1.4rem;
+        margin-bottom: 0.9rem;
+      }
+
+      .warning-text {
+        font-size: 1.05rem;
+      }
+
+      header::before,
+      header::after {
+        font-size: 0.75rem;
+      }
+    }
+
+    /* Large Tablets in Landscape (769px - 1023px) */
+    @media (min-width: 769px) and (max-width: 1023px) {
+      .overlay {
+        padding: 1.8rem;
+      }
+
+      header {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      header h1 {
+        font-size: 32px;
+        letter-spacing: 1px;
+      }
+
+      .red-serpents-title {
+        font-size: 2.1rem;
+      }
+
+      h2 {
+        font-size: 1.6rem;
+        padding-left: 1.6rem;
+      }
+
+      .narrative-text {
+        font-size: 1.05rem;
+        line-height: 1.7;
+        text-align: left;
+      }
+
+      .glass-box {
+        padding: 2rem;
+        margin-bottom: 1.6rem;
+      }
+
+      .mission-critical {
+        font-size: 1.2rem;
+        padding: 1rem;
+        margin: 1.8rem auto;
+      }
+
+      .submit-button {
+        padding: 1.1rem 2.5rem;
+        font-size: 1.05rem;
+      }
+
+      .rules-list li,
+      .scope-list li,
+      .submission-list li {
+        font-size: 1.05rem;
+        padding: 0.9rem 1.2rem;
+        margin-bottom: 0.8rem;
+      }
+
+      header::before,
+      header::after {
+        font-size: 0.7rem;
+        padding: 0 0.8rem;
+      }
+    }
+
+    /* Standard Mobile Design (768px and below) */
+    @media (max-width: 768px) {
+      .overlay {
+        padding: 1rem;
+      }
+
+      .glass-box {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .red-serpents-title {
+        font-size: 2rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      .narrative-text {
+        font-size: 1rem;
+        text-align: left;
+      }
+
+      .mission-critical {
+        font-size: 1.1rem;
+        padding: 0.8rem;
+      }
+
+      .submit-button {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+      }
+
+      .rules-list li,
+      .scope-list li,
+      .submission-list li {
+        font-size: 1rem;
+        padding: 0.8rem 1rem;
+      }
+
+      header::before,
+      header::after {
+        font-size: 0.7rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 1.5rem;
+        letter-spacing: 1px;
+      }
+
+      .red-serpents-title {
+        font-size: 1.8rem;
+      }
+
+      .glass-box {
+        padding: 1rem;
+      }
+
+      .submit-button {
+        width: 100%;
+        max-width: 300px;
+      }
+
+      header::before,
+      header::after {
+        position: relative;
+        display: block;
+        text-align: center;
+        margin: 0.5rem 0;
+      }
+    }
+
+    /* High DPI Laptop Displays */
+    @media (-webkit-min-device-pixel-ratio: 2),
+    (min-resolution: 192dpi) {
+      .matrix-bg::before {
+        background-size: 140px 140px;
+      }
+
+      .glass-box {
+        backdrop-filter: blur(30px);
+      }
+
+      header h1,
+      .red-serpents-title,
+      h2 {
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+    }
+
+    /* Ultrawide Laptop Displays (21:9 aspect ratio) */
+    @media (min-aspect-ratio: 21/9) and (min-width: 1440px) {
+      .overlay {
+        max-width: 1600px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        grid-template-areas:
+          "header header"
+          "intro intro"
+          "rules scope"
+          "domains domains"
+          "submit submit";
+      }
+
+      header {
+        grid-area: header;
+      }
+
+      .intro {
+        grid-area: intro;
+      }
+
+      .rules {
+        grid-area: rules;
+      }
+
+      .scope {
+        grid-area: scope;
+      }
+
+      .domains {
+        grid-area: domains;
+      }
+
+      .report-btn {
+        grid-area: submit;
+      }
+
+      .glass-box {
+        height: fit-content;
+      }
+    }
+
+    /* Accessibility improvements */
+    @media (prefers-reduced-motion: reduce) {
+      .matrix-bg::before {
+        animation: none;
+      }
+
+      .glass-box,
+      .submit-button,
+      .rules-list li,
+      .scope-list li,
+      .submission-list li {
+        transition: none;
+      }
+
+      .status-indicator {
+        animation: none;
+      }
+    }
+
+    /* Focus states for accessibility */
+    .submit-button:focus,
+    .domain-link:focus {
+      outline: 2px solid var(--primary-green);
+      outline-offset: 2px;
+    }
+
+    /* Print styles for laptops */
+    @media print {
+
+      .matrix-bg,
+      .submit-button,
+      .status-indicator {
+        display: none;
+      }
+
+      body {
+        background: white;
+        color: black;
+      }
+
+      .glass-box {
+        border: 1px solid #ccc;
+        background: white;
+        box-shadow: none;
+      }
+
+      header h1,
+      .red-serpents-title,
+      h2 {
+        color: black;
+        text-shadow: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="matrix-bg"></div>
+  <div class="overlay">
+    <header>
+      <h1>TERRITORY-09 – Operation ∑TIDE</h1>
+    </header>
+
+    <section class="intro glass-box">
+      <div class="section-header">
+        <h2 class="red-serpents-title">The Red Serpents</h2>
+      </div>
+      <p class="narrative-text">
+        When ISIS crumbled in 2015, the world exhaled — warlords defeated, systems cleansed,
+        and terror silenced. Or so we thought. From its ashes, something far more dangerous emerged — not men in desert
+        trucks, but ghosts in fiber optics. A shapeless, digital terror with no flags, no borders, and no mercy. They
+        called themselves the <strong>Red Serpents</strong>.
+      </p>
+      <p class="narrative-text">
+        Born in the ruins of Raqqa, the Serpents were not an army — they were an ideology. A hive of former ISIS
+        tacticians, rogue engineers, and radical coders who believed the battlefield was obsolete. Leading them was
+        <strong>Amir
+          Zahid al-Kurashi</strong>, the so-called "Prophet Serpent," whose doctrine echoed like a virus: <em>"Let data
+          bleed, and
+          nations will kneel."</em> He was joined by <strong>Alif Nawaz</strong> — a Pakistani telecom engineer turned
+        malware architect, <strong>Layla
+          Bashir</strong> — an information manipulator who turned psy-ops into an art form, and <strong>Mei Lin</strong>
+        — the most elusive of them
+        all.
+      </p>
+      <p class="narrative-text">
+        <strong>Codename: Red Lantern.</strong> A brilliant cybersecurity researcher from Sichuan, Mei Lin disappeared
+        from academia
+        after publishing a controversial paper on quantum key tampering. Months later, she resurfaced on darknet
+        channels, orchestrating botnets across military satellites, rerouting NATO drone traffic in midair, and
+        disappearing without trace. Her alias? A ghost in red. Her code? Flawless.
+      </p>
+      <p class="narrative-text">
+        The Serpents didn't claim land. They claimed control. Their attacks whispered through wires — one by one, cities
+        blacked out, hospitals froze, satellites blinked offline. They never shouted. They left no headlines — only
+        fragments, flags, and footprints buried in malformed packets and broken JSON.
+      </p>
+      <p class="narrative-text">
+        <strong>Now, something changed.</strong>
+      </p>
+      <p class="narrative-text">
+        For the first time in years, a weak signal pinged our sensors. A Red Serpent communications relay surfaced under
+        the domains: <code>redserpents.local</code>, <code>redserpents.admin</code>, <code>redserpant.attack</code>. But
+        it's a trap. Three domains were
+        discovered — two decoys, masked to look real, poisoned with noise. One is genuine — the core they never wanted
+        you to see.
+      </p>
+      <p class="narrative-text">
+        Your mission is simple: <strong>infiltrate the network</strong>. Find the real domain. Exploit it. Expose their
+        inner systems.
+        Hidden across the domains are planted vulnerabilities, false trails, and flags — traces of <strong>Operation
+          ∑TIDE</strong>, a
+        digital assault set to detonate across Eastern Europe in less than two hours.
+      </p>
+      <p class="mission-critical">
+        <strong>You have 90 minutes.</strong>
+      </p>
+      <p class="narrative-text">
+        Trust no domain. Read between every line of code. And remember — the Serpents are watching.
+      </p>
+      <p class="warning-text">
+        <strong>And they don't miss twice.</strong>
+      </p>
+    </section>
+
+    <section class="rules glass-box">
+      <h2>Rules</h2>
+      <ul class="rules-list">
+        <li><span class="status-indicator status-critical"></span>Bugs outside scope or duplicates will not be rewarded.
+        </li>
+        <li><span class="status-indicator status-critical"></span>No DDoS, spamming, or social engineering attacks.</li>
+        <li><span class="status-indicator status-critical"></span>Follow local laws and ethical guidelines at all times.
+        </li>
+
+        <li><span class="status-indicator status-critical"></span>Decisions by the event organizers are final.</li>
+      </ul>
+    </section>
+
+    <section class="scope glass-box">
+      <h2>Scope</h2>
+      <ul class="scope-list">
+
+        <li><span class="status-indicator status-warning"></span><a href="../mai.html" class="domain-link">serpent-infil.local</a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="domains glass-box">
+      <h2>Submission Format (via Google Form)</h2>
+      <ul class="submission-list">
+        <li><span class="status-indicator status-online"></span>Domain name where you found the bug</li>
+        <li><span class="status-indicator status-online"></span>Vulnerability type</li>
+        <li><span class="status-indicator status-online"></span>Steps to reproduce</li>
+      </ul>
+    </section>
+
+    <div class="report-btn">
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSf5YAW6IbHpsd-XHbOI-3uxU6nPhegzikC7Fx22dC4kUqAYkQ/viewform?usp=header"
+        target="_blank" class="submit-button">
+        Submit Exploit Report
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // Terminal-style typing effect for mission critical text
+    document.addEventListener('DOMContentLoaded', function () {
+      const missionText = document.querySelector('.mission-critical strong');
+      if (missionText) {
+        const originalText = missionText.textContent;
+        missionText.textContent = '';
+
+        let i = 0;
+        const typeWriter = () => {
+          if (i < originalText.length) {
+            missionText.textContent += originalText.charAt(i);
+            i++;
+            setTimeout(typeWriter, 100);
+          }
+        };
+
+        setTimeout(typeWriter, 1000);
+      }
+
+      // Add glitch effect to classified headers
+      const classifiedElements = document.querySelectorAll('header::before, header::after');
+      setInterval(() => {
+        const header = document.querySelector('header');
+        if (header && Math.random() < 0.1) {
+          header.style.filter = 'hue-rotate(180deg)';
+          setTimeout(() => {
+            header.style.filter = 'none';
+          }, 100);
+        }
+      }, 3000);
+
+      // Status indicator randomization
+      const statusIndicators = document.querySelectorAll('.status-warning');
+      setInterval(() => {
+        statusIndicators.forEach(indicator => {
+          if (Math.random() < 0.3) {
+            indicator.classList.toggle('status-critical');
+            indicator.classList.toggle('status-warning');
+          }
+        });
+      }, 5000);
+
+      // Add terminal lines to narrative
+      const narrativeTexts = document.querySelectorAll('.narrative-text');
+      narrativeTexts.forEach((text, index) => {
+        if (index % 3 === 0) {
+          const terminalLine = document.createElement('div');
+          terminalLine.className = 'terminal-line';
+          terminalLine.textContent = `INTEL_${String(index + 1).padStart(3, '0')}: Processing...`;
+          text.parentNode.insertBefore(terminalLine, text);
+        }
+      });
+    });
+
+    // Matrix rain effect enhancement
+    function createMatrixRain() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.style.position = 'fixed';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.zIndex = '-1';
+      canvas.style.opacity = '0.3';
+      document.body.appendChild(canvas);
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+      const matrixArray = matrix.split("");
+
+      const fontSize = 10;
+      const columns = canvas.width / fontSize;
+
+      const drops = [];
+      for (let x = 0; x < columns; x++) {
+        drops[x] = 1;
+      }
+
+      function draw() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#00ff41';
+        ctx.font = fontSize + 'px JetBrains Mono';
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+
+      setInterval(draw, 55);
+    }
+
+    // Initialize matrix rain on load
+    window.addEventListener('load', createMatrixRain);
+  </script>
+</body>
+
+</html>

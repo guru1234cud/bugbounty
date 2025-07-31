@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CyberSec Arsenal - Professional Security Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-green: #00ff41;
+      --dark-green: #003300;
+      --accent-orange: #ff6b35;
+      --military-blue: #1e3a8a;
+      --bg-dark: #0a0a0a;
+      --bg-secondary: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0b0;
+      --text-muted: #808080;
+      --glass-bg: rgba(0, 255, 65, 0.08);
+      --glass-border: rgba(0, 255, 65, 0.2);
+      --matrix-green: #00ff41;
+      --warning-red: #dc2626;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #000;
+      color: var(--text-primary);
+      font-family: 'Share Tech Mono', monospace;
+      overflow-x: hidden;
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .matrix-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: radial-gradient(ellipse at center, rgba(0, 255, 65, 0.1) 0%, transparent 70%),
+                  linear-gradient(180deg, #0a0a0a 0%, #0d1117 50%, #0a0a0a 100%);
+    }
+
+    .matrix-bg::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(circle at 25% 25%, rgba(0, 255, 65, 0.1) 0%, transparent 2%),
+                        radial-gradient(circle at 75% 75%, rgba(30, 58, 138, 0.05) 0%, transparent 2%);
+      background-size: 70px 70px;
+      animation: matrixMove 25s linear infinite;
+    }
+
+    @keyframes matrixMove {
+      0% { background-position: 0 0; }
+      100% { background-position: 70px 70px; }
+    }
+
+    .header {
+      background: rgba(17, 17, 17, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 5px 10px;
+      border-bottom: 2px solid var(--warning-red);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary-green);
+      text-shadow: 2px 2px 4px rgba(220, 38, 38, 0.7);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: glitch 3s infinite;
+      padding: 10px;
+      font-style: italic;
+    }
+
+    .shield-icon {
+      width: 48px;
+      height: 48px;
+      margin-right: 16px;
+      color: var(--primary-green);
+    }
+
+    .product-highlight {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 20px;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .granade {
+        margin-top: 20px;
+      height: 450px;
+      width: 450px;
+      border-radius: 16px;
+      object-fit: cover;
+      border: 2px solid var(--primary-green);
+      box-shadow: 0 8px 20px rgba(0, 255, 65, 0.3);
+    }
+
+    .granade-description {
+      max-width: 500px;
+    }
+
+    .granade-title {
+      font-size: 2.5rem;
+      color: var(--primary-green);
+      margin-bottom: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .granade-text {
+      font-size: 1.0rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    select, button {
+      padding: 10px 15px;
+      font-size: 16px;
+      margin-right: 10px;
+      border-radius: 10px;
+    }
+
+    button {
+      background-color: #00ff00;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #017501;
+    }
+
+    #stock-result {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    .add-to-cart {
+      background: var(--warning-red);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-weight: bold;
+      border-radius: 8px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .add-to-cart:hover {
+      background: #991b1b;
+      transform: scale(1.05);
+    }
+
+    .features-section {
+      background: rgba(26, 26, 26, 0.5);
+      padding: 60px 20px;
+      margin-top: 40px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      text-align: center;
+      padding: 30px 20px;
+      border: 1px solid rgba(0, 255, 65, 0.3);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: var(--primary-green);
+      transform: translateY(-4px);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      color: var(--primary-green);
+      margin: 0 auto 16px;
+    }
+
+    .feature-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--primary-green);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .feature-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .footer {
+      background: rgba(0, 0, 0, 0.9);
+      border-top: 2px solid var(--warning-red);
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .footer-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .footer-title {
+      color: var(--primary-green);
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .footer-text {
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .footer-warning {
+      color: var(--accent-orange);
+      font-size: 0.9rem;
+      animation: blink 2s infinite;
+    }
+
+    @keyframes glitch {
+      0%, 15%, 49%, 100% {
+        text-shadow: 0.05em 0 0 #ff0000, -0.03em -0.04em 0 #00ff00, 0.025em 0.04em 0 #0000ff;
+      }
+      16%, 50% {
+        text-shadow: -0.05em -0.025em 0 #ff0000, 0.025em 0.035em 0 #00ff00, -0.05em -0.05em 0 #0000ff;
+      }
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    @media (max-width: 768px) {
+      .granade {
+        width: 100%;
+        height: auto;
+      }
+
+      .granade-description {
+        text-align: center;
+      }
+
+      .granade-title {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="matrix-bg"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <svg class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        ISIS Arsenal
+      </div>
+    </div>
+  </header>
+
+  <!-- Product Highlight -->
+  <section class="product-highlight">
+    <img src="../img/granade.jpg" class="granade" alt="Grenade Image">
+    <div class="granade-description">
+      <h1 class="granade-title">Tactical Grenade</h1>
+      <p class="granade-text">
+        Designed for advanced tactical simulations, this replica grenade delivers immersive realism for military drills, airsoft battles, or action films. With rugged construction and true-to-life detail, it brings high-impact training without real-world risks. Built for intensity — safe for controlled use.
+      </p>
+
+      <select id="location-select">
+        <option value="Somalia">Iran</option>
+        <option value="Afghanistan">Afghanistan</option>
+        <option value="Iran">Somalia</option>
+      </select>
+
+      <button onclick="checkCount()">Check stock</button>
+
+      <div id="stock-result"></div>
+    </div>
+  </section>
+
+ <section class="features-section">
+    <div class="features-grid">
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <circle cx="12" cy="16" r="1"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <div class="feature-title">Secure Transactions</div>
+        <div class="feature-description">Military-grade encryption for all purchases</div>
+      </div>
+      
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+          <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+          <line x1="12" y1="20" x2="12.01" y2="20"/>
+        </svg>
+        <div class="feature-title">Anonymous Delivery</div>
+        <div class="feature-description">Discrete shipping to secure locations</div>
+      </div>
+      
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <div class="feature-title">24/7 Monitoring</div>
+        <div class="feature-description">Continuous security surveillance</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-title">[ CYBERSEC ARSENAL - AUTHORIZED DEALERS ONLY ]</div>
+      <div class="footer-text">
+        This is a fictional cybersecurity tools marketplace for educational purposes only.
+      </div>
+      <div class="footer-warning">
+        CONNECTION SECURE • LOCATION MASKED • IDENTITY PROTECTED
+      </div>
+    </div>
+  </footer>
+  <script src="../js/timer.js"></script>
+  <script src="product.js"></script>
+</body>
+</html>
