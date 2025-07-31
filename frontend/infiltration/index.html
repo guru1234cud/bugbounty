@@ -26,7 +26,7 @@
       const password = document.getElementById("password").value;
 
       try {
-        const res = await fetch("http://localhost:3000/login", {
+        const res = await fetch("/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password })
@@ -45,7 +45,7 @@
           document.getElementById("result").textContent = data.message || "Invalid credentials!";
         }
       } catch (error) {
-        //console.error("Error:", error);
+        console.error("Error:", error);
         document.getElementById("result").textContent = "Server error. Try again later.";
       }
     });

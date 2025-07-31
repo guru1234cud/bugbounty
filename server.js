@@ -1,59 +1,61 @@
 const express = require("express");
+const getDB = require("./db"); // Not named 'db' to avoid redeclaring later
 const authRoutes = require("./routes/authRoutes");
-const db = require('./db')
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const app = express();
+const path = require("path");
 const { exec } = require("child_process");
-const { config } = require("dotenv");
-const dotenv =config();
-const path = require('path')
+require("dotenv").config(); // ✅ simpler dotenv call
+
+const app = express();
+const port = 3000;
+
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-const port = 3000;
-app.use("/api", authRoutes);
 
-app.use(express.static(path.join(__dirname, './frontend')));
+// Static files & frontend routing
+app.use(express.static(path.join(__dirname, "./frontend")));
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "landing_page", "index.html"));
 });
 
-// ✅ SECURE LOGIN ROUTE
-app.post("/login", (req, res) => {
+// Routes
+app.use("/api", authRoutes);
+
+// ✅ Login route (intentionally vulnerable for testing)
+app.post("/login", async (req, res) => {
   const { username, password } = req.body;
+  const sql = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`; // unsafe on purpose
 
-  const sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-  db.query(sql, [username, password], (err, result) => {
-    if (err) {
-      console.error("DB Error:", err);
-      return res.status(500).json({ message: "❌ Internal server error" });
-    }
+  try {
+    const db = await getDB(); // get pool
 
-    if (result.length > 0) {
-      const role = (username === "admin") ? "admin" : "user";
-      return res.status(200).json({ role, success: true, message: "✅ Login success" });
-    } else {
-      return res.status(401).json({ success: false, message: "❌ Invalid credentials" });
-    }
-  });
+    db.query(sql, (err, result) => {
+      if (err) {
+        console.error("DB Error:", err);
+        return res.status(500).json({ message: "❌ Internal server error" });
+      }
+
+      if (result.length > 0) {
+        const role = username === "admin" ? "admin" : "user";
+        return res.status(200).json({ role, success: true, message: "✅ Login success" });
+      } else {
+        return res.status(401).json({ success: false, message: "❌ Invalid credentials" });
+      }
+    });
+  } catch (err) {
+    console.error("❌ Failed to get DB:", err.message);
+    return res.status(500).json({ message: "❌ DB unavailable" });
+  }
 });
 
-// 🏠 Home route
-// app.get('/adas', (req, res) => {
-//   res.send(`
-//     <h1>Welcome</h1>
-//     <p><a href="/dashboard?role=admin">Admin Access</a></p>
-//     <p><a href="/dashboard?role=user">User Access</a></p>
-//     <p><a href="/dashboard?role=unknown">Blocked Access</a></p>
-//   `);
-// });
-
-// 🛍 Product info (fixed: no RCE, just direct object lookup)
+// 🛍 Product count (intentional command injection vector)
 const productCounts = {
   Iran: 3,
   Afghanistan: 5,
-  Somalia: 2
+  Somalia: 2,
 };
 
 app.post("/product_count", (req, res) => {
@@ -79,7 +81,6 @@ app.post("/product_count", (req, res) => {
     });
   });
 });
-
 app.listen(port, () => {
   console.log(`🚀 Server running on http://localhost:${port}`);
 });
