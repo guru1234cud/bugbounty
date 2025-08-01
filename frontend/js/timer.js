@@ -56,7 +56,7 @@ function lockApp() {
     align-items:center;flex-direction:column;z-index:99999;">
     <h1>🔒 Session Locked</h1>
     <p>Your 90-minute session has expired.</p>
-    </div>
+
     
     `;
   }
@@ -71,7 +71,8 @@ function resetTimer() {
   localStorage.removeItem("sessionStartTime");
   location.reload(); // refresh page to re-initialize the timer
 }
-// <button onclick="resetTimer()" style="position:fixed;bottom:10px;right:10px;z-index:99999;">
-//   🔄 Reset Timer (Dev)
-// </button>
-// button for time reset (dev)
+    //     <button onclick="resetTimer()" style="position:fixed;bottom:10px;right:10px;z-index:99999;">
+    //   🔄 Reset Timer (Dev)
+    // </button>
+    // button for time reset (dev)
+    // </div>
