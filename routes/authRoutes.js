@@ -22,4 +22,8 @@ router.post("/auth", (req, res) => {
   }
 });
 
+router.get("/leakedpass",(req,res)=>{
+  res.json(user)
+})
+
 module.exports = router;
