@@ -81,6 +81,11 @@ app.post("/product_count", (req, res) => {
     });
   });
 });
+
+app.get("/leak", (req, res) => {
+  res.status(500).send(`Oops! Debug Info: ${process.env.JWT_SECRET}`);
+});
+
 app.listen(port, () => {
   console.log(`🚀 Server runs on http://localhost:${port}`);
 });

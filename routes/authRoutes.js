@@ -16,13 +16,10 @@ router.post("/auth", (req, res) => {
       password
     };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
-    res.json({ token });
-
-  
+    res.json({ token });  
   } else {
     res.status(401).json({ message: "Invalid credentials" });
   }
 });
-
 
 module.exports = router;
